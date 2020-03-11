@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.*
 
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
@@ -87,12 +88,12 @@ class CrimeListFragment : Fragment() {
             this@CrimeHolder.crime = crime
             titleTextView.text = crime.title
             val pattern = """EEEE, MMM d, yyyy."""
-            dateTextView.text = SimpleDateFormat(pattern).format(crime.date)
+            dateTextView.text = SimpleDateFormat(pattern, Locale.US).format(crime.date)
             solvedImageView.visibility = if (crime.solved) View.VISIBLE else View.GONE
         }
 
         override fun onClick(view: View?) {
-            val intent = CrimeActivity.newIntent(activity!!, crime.id)
+            val intent = CrimePagerActivity.newIntent(activity!!, crime.id)
             startActivity(intent)
         }
     }
