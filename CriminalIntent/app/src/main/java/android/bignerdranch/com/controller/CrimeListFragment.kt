@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var crimeAdapter: CrimeAdapter
+    private var lastPositionChanged = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +44,7 @@ class CrimeListFragment : Fragment() {
         val crimes = crimeLab.crimes
 
         if (::crimeAdapter.isInitialized) {
-            crimeAdapter.notifyDataSetChanged()
+            crimeAdapter.notifyItemChanged(lastPositionChanged)
         } else {
             crimeAdapter = CrimeAdapter(crimes)
             crimeRecyclerView.adapter = crimeAdapter
@@ -92,6 +93,7 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun onClick(view: View?) {
+            lastPositionChanged = adapterPosition
             val intent = CrimeActivity.newIntent(activity!!, crime.id)
             startActivity(intent)
         }
