@@ -37,12 +37,15 @@ class CrimePagerActivity : AppCompatActivity() {
 
             override fun createFragment(position: Int): Fragment {
                 val crime = crimes[position]
-                buttonCheckPosition(position)
+
                 return CrimeFragment.newInstance(crime.id)
             }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                buttonCheckPosition(position)
+            }
         })
         val index = crimes.indexOfFirst { crime ->  crime.id == crimeId }
 
