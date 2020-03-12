@@ -6,6 +6,7 @@ import android.bignerdranch.com.model.CrimeLab
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -15,6 +16,8 @@ import java.util.*
 class CrimePagerActivity : AppCompatActivity() {
 
     private lateinit var viewPager: ViewPager2
+    private lateinit var btnFirst: Button
+    private lateinit var btnLast: Button
     private lateinit var crimes: List<Crime>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +27,8 @@ class CrimePagerActivity : AppCompatActivity() {
         val crimeId = intent.getSerializableExtra(EXTRA_CRIME_ID)
 
         viewPager = findViewById(R.id.crime_view_pager)
+        btnFirst = findViewById(R.id.btn_first)
+        btnLast = findViewById(R.id.btn_last)
         crimes = CrimeLab.getInstance(this).crimes
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount(): Int {
@@ -32,13 +37,52 @@ class CrimePagerActivity : AppCompatActivity() {
 
             override fun createFragment(position: Int): Fragment {
                 val crime = crimes[position]
+                buttonCheckPosition(position)
                 return CrimeFragment.newInstance(crime.id)
             }
         }
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
 
-        viewPager.currentItem = crimes.indexOfFirst { crime ->  crime.id == crimeId }
-            .let { index -> if (index > 0) index else 0 }
+        })
+        val index = crimes.indexOfFirst { crime ->  crime.id == crimeId }
 
+        viewPager.currentItem = when {
+            index < 0 || index == 0 -> {
+                btnFirst.isEnabled = false
+                0
+            }
+            index == crimes.size - 1 -> {
+                btnLast.isEnabled = false
+                index
+            }
+            else -> index
+        }
+
+        btnFirst.setOnClickListener {
+            viewPager.currentItem = 0
+        }
+
+        btnLast.setOnClickListener {
+            viewPager.currentItem = crimes.size - 1
+        }
+
+    }
+
+    private fun buttonCheckPosition(position: Int) {
+        when (position) {
+            0 -> {
+                btnFirst.isEnabled = false
+                btnLast.isEnabled = true
+            }
+            crimes.size - 1 -> {
+                btnFirst.isEnabled = true
+                btnLast.isEnabled = false
+            }
+            else -> {
+                btnFirst.isEnabled = true
+                btnLast.isEnabled = true
+            }
+        }
     }
 
     companion object {
