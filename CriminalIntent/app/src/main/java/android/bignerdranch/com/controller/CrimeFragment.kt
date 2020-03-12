@@ -17,9 +17,9 @@ import java.util.*
 
 class CrimeFragment : Fragment() {
     lateinit var crime: Crime
-    lateinit var crimeTitleTextView: TextView
-    lateinit var crimeDateButton: Button
-    lateinit var crimeSolvedCheckBox: CheckBox
+    private lateinit var crimeTitleTextView: TextView
+    private lateinit var crimeDateButton: Button
+    private lateinit var crimeSolvedCheckBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,11 @@ class CrimeFragment : Fragment() {
         crimeDateButton = view.findViewById(R.id.crime_date) as Button
         crimeDateButton.apply {
             text = crime.date.toString()
-            isEnabled = false
+            setOnClickListener {
+                val dialog = DatePickerFragment.newInstance(crime.date)
+                dialog.show(fragmentManager!!, DIALOG_DATE)
+                    .also { setTargetFragment(this@CrimeFragment, REQUEST_DATE) }
+            }
         }
 
         crimeSolvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
@@ -64,6 +68,8 @@ class CrimeFragment : Fragment() {
 
     companion object {
         const val ARG_CRIME_ID = "crime_id"
+        const val DIALOG_DATE = "DialogDate"
+        const val REQUEST_DATE = 0
 
         fun newInstance(crimeId: UUID) : CrimeFragment {
             val args = Bundle()
