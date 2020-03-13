@@ -6,5 +6,5 @@ class Crime {
     var title: String = ""
     var solved: Boolean = false
     var date: Date = Date()
-    val id = UUID.randomUUID()
+    val id: UUID  = UUID.randomUUID()
 }

@@ -15,12 +15,14 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CrimeFragment : Fragment() {
     lateinit var crime: Crime
     private lateinit var crimeTitleTextView: TextView
     private lateinit var crimeDateButton: Button
+    private lateinit var crimeTimeButton: Button
     private lateinit var crimeSolvedCheckBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +52,9 @@ class CrimeFragment : Fragment() {
         })
 
         crimeDateButton = view.findViewById(R.id.crime_date) as Button
-        updateDate()
+        crimeTimeButton = view.findViewById(R.id.crime_time) as Button
+        updateDateAndTime()
+
         crimeDateButton.setOnClickListener {
             val dialog = DatePickerFragment.newInstance(crime.date)
             with(dialog) {
@@ -59,6 +63,13 @@ class CrimeFragment : Fragment() {
             }
         }
 
+        crimeTimeButton.setOnClickListener {
+            val dialog = TimePickerFragment.newInstance(crime.date)
+            with(dialog) {
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.fragmentManager!!, DIALOG_TIME)
+            }
+        }
 
         crimeSolvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
         crimeSolvedCheckBox.isChecked = crime.solved
@@ -75,18 +86,20 @@ class CrimeFragment : Fragment() {
         when (requestCode) {
             REQUEST_DATE -> {
                 crime.date = data?.getSerializableExtra(DatePickerFragment.EXTRA_DATE) as Date
-                updateDate()
+                updateDateAndTime()
             }
         }
     }
 
-    private fun updateDate() {
-        crimeDateButton.text = crime.date.toString()
+    private fun updateDateAndTime() {
+        crimeDateButton.text = SimpleDateFormat("EEEE, MMM d, yyyy", Locale.US).format(crime.date)
+        crimeTimeButton.text = SimpleDateFormat("HH:mm", Locale.US).format(crime.date)
     }
 
     companion object {
         const val ARG_CRIME_ID = "crime_id"
         const val DIALOG_DATE = "DialogDate"
+        const val DIALOG_TIME = "DialogTime"
         const val REQUEST_DATE = 0
 
         fun newInstance(crimeId: UUID): CrimeFragment {

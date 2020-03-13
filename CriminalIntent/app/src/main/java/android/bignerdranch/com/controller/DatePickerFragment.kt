@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.bignerdranch.com.R
+import android.bignerdranch.com.utils.*
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,9 +21,7 @@ class DatePickerFragment : DialogFragment() {
         val date = arguments?.getSerializable(ARG_DATE) as Date
         val calendar = Calendar.getInstance()
             .apply { time = date }
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val (year, month, day, hour, minute) = calendar
 
         val dialogView = LayoutInflater.from(activity!!)
             .inflate(R.layout.dialog_date, null)
@@ -34,7 +33,14 @@ class DatePickerFragment : DialogFragment() {
             .setView(dialogView)
             .setTitle(R.string.date_picker_title)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                @Suppress("NAME_SHADOWING") val date = GregorianCalendar(datePicker.year, datePicker.month, datePicker.dayOfMonth).time
+                @Suppress("NAME_SHADOWING")
+                val date = GregorianCalendar(
+                    datePicker.year,
+                    datePicker.month,
+                    datePicker.dayOfMonth,
+                    hour,
+                    minute
+                ).time
                 sendResult(Activity.RESULT_OK, date)
             }
             .create()
@@ -53,7 +59,7 @@ class DatePickerFragment : DialogFragment() {
         private const val ARG_DATE = "date"
         const val EXTRA_DATE = "com.bignerdranch.android.criminalintent.date"
 
-        fun newInstance(date: Date) : DatePickerFragment {
+        fun newInstance(date: Date): DatePickerFragment {
             val args = Bundle()
             args.putSerializable(ARG_DATE, date)
             return DatePickerFragment().apply { arguments = args }
