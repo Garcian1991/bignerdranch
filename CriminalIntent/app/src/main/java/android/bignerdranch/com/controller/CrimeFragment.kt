@@ -1,8 +1,10 @@
 package android.bignerdranch.com.controller
 
+import android.app.Activity
 import android.bignerdranch.com.R
 import android.bignerdranch.com.model.Crime
 import android.bignerdranch.com.model.CrimeLab
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -48,14 +50,15 @@ class CrimeFragment : Fragment() {
         })
 
         crimeDateButton = view.findViewById(R.id.crime_date) as Button
-        crimeDateButton.apply {
-            text = crime.date.toString()
-            setOnClickListener {
-                val dialog = DatePickerFragment.newInstance(crime.date)
-                dialog.show(fragmentManager!!, DIALOG_DATE)
-                    .also { setTargetFragment(this@CrimeFragment, REQUEST_DATE) }
+        updateDate()
+        crimeDateButton.setOnClickListener {
+            val dialog = DatePickerFragment.newInstance(crime.date)
+            with(dialog) {
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.fragmentManager!!, DIALOG_DATE)
             }
         }
+
 
         crimeSolvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
         crimeSolvedCheckBox.isChecked = crime.solved
@@ -66,12 +69,27 @@ class CrimeFragment : Fragment() {
         return view
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode != Activity.RESULT_OK)
+            return
+        when (requestCode) {
+            REQUEST_DATE -> {
+                crime.date = data?.getSerializableExtra(DatePickerFragment.EXTRA_DATE) as Date
+                updateDate()
+            }
+        }
+    }
+
+    private fun updateDate() {
+        crimeDateButton.text = crime.date.toString()
+    }
+
     companion object {
         const val ARG_CRIME_ID = "crime_id"
         const val DIALOG_DATE = "DialogDate"
         const val REQUEST_DATE = 0
 
-        fun newInstance(crimeId: UUID) : CrimeFragment {
+        fun newInstance(crimeId: UUID): CrimeFragment {
             val args = Bundle()
             args.putSerializable(ARG_CRIME_ID, crimeId)
             return CrimeFragment().apply { arguments = args }
