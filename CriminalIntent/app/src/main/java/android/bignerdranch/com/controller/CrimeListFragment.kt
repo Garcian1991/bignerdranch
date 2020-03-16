@@ -6,6 +6,7 @@ import android.bignerdranch.com.model.CrimeLab
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +21,8 @@ import java.util.*
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var crimeAdapter: CrimeAdapter
+    private lateinit var crimeStub: View
+    private lateinit var crimeAddStub: Button
     private var subtitleVisible = false
 
 
@@ -29,6 +32,9 @@ class CrimeListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+        crimeStub = view.findViewById(R.id.no_crimes_stub)
+        crimeAddStub = view.findViewById(R.id.btn_add_crime)
+        crimeAddStub.setOnClickListener { newCrime() }
         crimeRecyclerView = view.findViewById(R.id.crime_recycle_view)
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         savedInstanceState?.let { subtitleVisible = it.getBoolean(SAVED_SUBTITLE_VISIBLE, false)}
@@ -66,10 +72,7 @@ class CrimeListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.new_crime -> {
-                val crime = Crime()
-                CrimeLab.getInstance(activity!!).addCrime(crime)
-                val intent = CrimePagerActivity.newIntent(activity!!, crime.id)
-                startActivity(intent)
+                newCrime()
                 true
             }
             R.id.show_subtitle -> {
@@ -80,6 +83,13 @@ class CrimeListFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun newCrime() {
+        val crime = Crime()
+        CrimeLab.getInstance(activity!!).addCrime(crime)
+        val intent = CrimePagerActivity.newIntent(activity!!, crime.id)
+        startActivity(intent)
+    }
 
     private fun updateSubtitle() {
         val crimeCount = CrimeLab.getInstance(activity!!).crimes.size
@@ -97,7 +107,13 @@ class CrimeListFragment : Fragment() {
     private fun updateUI() {
         val crimeLab = CrimeLab.getInstance(activity!!)
         val crimes = crimeLab.crimes
-
+        if (crimes.isEmpty()) {
+            crimeStub.visibility = View.VISIBLE
+            crimeRecyclerView.visibility = View.GONE
+        } else {
+            crimeStub.visibility = View.GONE
+            crimeRecyclerView.visibility = View.VISIBLE
+        }
         if (::crimeAdapter.isInitialized) {
             crimeAdapter.notifyDataSetChanged()
         } else {
