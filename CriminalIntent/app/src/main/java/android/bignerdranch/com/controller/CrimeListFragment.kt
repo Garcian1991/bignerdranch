@@ -87,7 +87,7 @@ class CrimeListFragment : Fragment() {
             if (!subtitleVisible)
                 null
             else
-                getString(R.string.subtitle_format, crimeCount)
+                resources.getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount)
 
         val activity = activity!! as AppCompatActivity
         activity.supportActionBar!!.subtitle = subtitle
