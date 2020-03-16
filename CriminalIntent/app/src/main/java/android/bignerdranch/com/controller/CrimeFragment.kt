@@ -8,9 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
@@ -27,6 +25,7 @@ class CrimeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val crimeId = arguments!!.getSerializable(ARG_CRIME_ID) as UUID
         crime = CrimeLab.getInstance(activity!!)[crimeId]!!
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -79,6 +78,22 @@ class CrimeFragment : Fragment() {
             }
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+        when(item.itemId) {
+            R.id.crime_delete -> {
+                CrimeLab.getInstance(activity!!).deleteCrime(crime.id)
+                activity!!.finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
 
     private fun updateDate() {
         crimeDateButton.text = crime.date.toString()

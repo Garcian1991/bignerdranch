@@ -11,6 +11,13 @@ class CrimeLab private constructor(context: Context) {
         _crimes.add(crime)
     }
 
+    fun deleteCrime(crimeId: UUID) {
+        val crimeToDelete = _crimes.firstOrNull { crime ->
+            crimeId == crime.id
+        }
+        crimeToDelete?.let { _crimes.remove(crimeToDelete) }
+    }
+
     private var _crimes = ArrayList<Crime>()
     val crimes: List<Crime>
         get() = _crimes
