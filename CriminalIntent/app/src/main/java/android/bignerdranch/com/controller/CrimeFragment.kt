@@ -69,6 +69,13 @@ class CrimeFragment : Fragment() {
         return view
     }
 
+
+    override fun onPause() {
+        super.onPause()
+        CrimeLab.getInstance(activity!!).updateCrime(crime)
+    }
+
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != Activity.RESULT_OK)
             return

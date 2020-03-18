@@ -1,12 +1,11 @@
 package android.bignerdranch.com.model
 
 import android.bignerdranch.com.model.database.CrimeBaseHelper
-import android.bignerdranch.com.model.database.CrimeDBSchema
+import android.bignerdranch.com.model.database.CrimeCursorWrapper
 import android.bignerdranch.com.model.database.CrimeDBSchema.CrimeTable
 import android.bignerdranch.com.utils.SingletonHolder
 import android.content.ContentValues
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -15,8 +14,19 @@ class CrimeLab private constructor(context: Context) {
     private val ctx = context.applicationContext
     private val database = CrimeBaseHelper(ctx).writableDatabase
 
-    val crimes: List<Crime>
-        get() = ArrayList()
+    var crimes = ArrayList<String>()
+        get() {
+            val cursor = queryCrimes(null, null)
+            cursor.use {
+                it.moveToFirst()
+                while (!it.isAfterLast) {
+                    field.add(it.crime!!)
+                    it.moveToNext()
+                }
+            }
+
+            return field
+        }
 
     fun addCrime(crime: Crime) {
         val values = getContentValues(crime)
@@ -25,11 +35,40 @@ class CrimeLab private constructor(context: Context) {
 
     fun updateCrime(crime: Crime) {
         val uuidString = crime.id.toString()
+        val values = getContentValues(crime)
+        database.update(
+            CrimeTable.NAME, values,
+            "${CrimeTable.Cols.UUID} = ?",
+            arrayOf(uuidString)
+        )
+    }
 
+    private fun queryCrimes(whereClause: String?, whereArgs: Array<String>?): CrimeCursorWrapper {
+        val cursor = database.query(
+            CrimeTable.NAME,
+            null,
+            whereClause,
+            whereArgs,
+            null,
+            null,
+            null
+        )
+        return CrimeCursorWrapper(cursor)
     }
 
     operator fun get(id: UUID): Crime? {
-        return null
+        val cursor = queryCrimes(
+            "${CrimeTable.Cols.UUID} = ?",
+            arrayOf(id.toString())
+        )
+
+        cursor.use { cur ->
+            if (cur.count == 0) {
+                return null
+            }
+            cur.moveToFirst()
+            return cur.crime
+        }
     }
 
     companion object : SingletonHolder<CrimeLab, Context>(::CrimeLab) {
